@@ -253,6 +253,8 @@ pub struct ThemeDimensions {
     pub block_padding_x: f32,
     /// Extra horizontal indent per nesting level (list items).
     pub nested_block_indent: f32,
+    /// Extra left indent for whole lists, top level included (0 = upstream look).
+    pub list_root_indent: f32,
     /// Gap between list marker and its text content.
     pub list_marker_gap: f32,
     /// Minimum width of the bullet list marker column.
@@ -936,6 +938,8 @@ struct ThemeDimensionsDe {
     block_padding_x: f32,
     /// Required indent per nested list level.
     nested_block_indent: f32,
+    /// Optional extra indent for whole lists.
+    list_root_indent: Option<f32>,
     /// Required gap after a list marker.
     list_marker_gap: f32,
     /// Required bullet marker column width.
@@ -1168,6 +1172,7 @@ impl<'de> Deserialize<'de> for ThemeDimensions {
             block_padding_y: raw.block_padding_y,
             block_padding_x: raw.block_padding_x,
             nested_block_indent: raw.nested_block_indent,
+            list_root_indent: raw.list_root_indent.unwrap_or(0.0),
             list_marker_gap: raw.list_marker_gap,
             list_marker_width: raw.list_marker_width,
             ordered_list_marker_width: raw.ordered_list_marker_width,
@@ -1408,6 +1413,7 @@ impl Theme {
                 block_padding_y: 4.0,
                 block_padding_x: 12.0,
                 nested_block_indent: 20.0,
+                list_root_indent: 0.0,
                 list_marker_gap: 8.0,
                 list_marker_width: 12.0,
                 ordered_list_marker_width: 20.0,
@@ -2463,6 +2469,18 @@ mod tests {
         assert!(!normalized.contains("description"));
 
         let _ = std::fs::remove_dir_all(root);
+    }
+
+    #[test]
+    fn list_root_indent_defaults_to_zero_and_reads_from_pack() {
+        assert_eq!(Theme::light_theme().dimensions.list_root_indent, 0.0);
+        let value = serde_json::json!({
+            "name": "Indented",
+            "creator": "Ada",
+            "theme": { "dimensions": { "list_root_indent": 24.0 } }
+        });
+        let (entry, _) = super::custom_theme_from_value(value).expect("theme should import");
+        assert_eq!(entry.theme.dimensions.list_root_indent, 24.0);
     }
 
     #[test]

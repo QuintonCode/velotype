@@ -219,9 +219,19 @@ fn container_image_width_budget(block: &Block, viewport_width: f32, d: &ThemeDim
     centered_width - quote_inset - callout_inset
 }
 
+/// Left inset from list nesting, plus the theme's whole-list indent for any block in a list.
+fn list_inset(block: &Block, d: &ThemeDimensions) -> f32 {
+    let root = if block.kind().is_list_item() || block.render_depth > 0 {
+        d.list_root_indent
+    } else {
+        0.0
+    };
+    root + d.nested_block_indent * block.render_depth as f32
+}
+
 /// Budgets image width after block padding and list indentation.
 fn effective_image_width(block: &Block, viewport_width: f32, d: &ThemeDimensions) -> f32 {
-    let list_inset = d.nested_block_indent * block.render_depth as f32;
+    let list_inset = list_inset(block, d);
     (container_image_width_budget(block, viewport_width, d) - d.block_padding_x * 2.0 - list_inset)
         .max(160.0)
 }
@@ -234,7 +244,7 @@ fn effective_list_item_image_width(block: &Block, viewport_width: f32, d: &Theme
         BlockKind::NumberedListItem => d.ordered_list_marker_width,
         _ => 0.0,
     };
-    let list_inset = d.nested_block_indent * block.render_depth as f32;
+    let list_inset = list_inset(block, d);
 
     (container_image_width_budget(block, viewport_width, d)
         - d.block_padding_x * 2.0
@@ -1976,7 +1986,7 @@ impl Render for Block {
         let c = &theme.colors;
         let d = &theme.dimensions;
         let t = &theme.typography;
-        let depth_padding = d.block_padding_x + d.nested_block_indent * self.render_depth as f32;
+        let depth_padding = d.block_padding_x + list_inset(self, d);
 
         if self.is_table_cell() {
             let is_header = self

@@ -219,6 +219,8 @@
       "block_padding_x": null,
       // Extra horizontal indent added per nested block level.
       "nested_block_indent": null,
+      // Extra left indent for whole lists, top level included. 0 matches upstream.
+      "list_root_indent": null,
       // Gap between a list marker and its text.
       "list_marker_gap": null,
       // Minimum width of the bullet list marker column.
