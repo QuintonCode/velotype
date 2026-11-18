@@ -2303,6 +2303,7 @@ impl Render for Block {
                 .children([
                     div()
                         .min_w(px(d.list_marker_width))
+                        .text_color(theme.colors.list_marker)
                         .child(SharedString::new(bulleted_list_marker(self.render_depth))),
                     if showing_rendered_image {
                         let viewport_width = f32::from(window.viewport_size().width.max(px(1.0)));
@@ -2457,6 +2458,7 @@ impl Render for Block {
                 .children([
                     div()
                         .min_w(px(d.ordered_list_marker_width))
+                        .text_color(theme.colors.list_marker)
                         .child(SharedString::from(numbered_list_marker(
                             self.render_depth,
                             self.list_ordinal.unwrap_or(1),

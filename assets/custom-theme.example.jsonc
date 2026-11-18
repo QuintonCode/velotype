@@ -35,6 +35,8 @@
       "comment_bg": null,
       // Default body text color for paragraphs and regular inline content.
       "text_default": null,
+      // Bullet and number color for list items. Empty inherits text_default.
+      "list_marker": null,
       // Link text color in rendered Markdown and safe HTML content.
       "text_link": null,
       // Placeholder text color for empty focused blocks and inputs.

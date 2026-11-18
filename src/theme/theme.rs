@@ -68,6 +68,8 @@ pub struct ThemeColors {
     pub comment_bg: Hsla,
     /// Default paragraph / body text colour.
     pub text_default: Hsla,
+    /// Bullet and number color for list items (defaults to `text_default`).
+    pub list_marker: Hsla,
     /// Inline link text colour in rendered mode.
     pub text_link: Hsla,
     /// Placeholder text shown in empty focused blocks.
@@ -540,6 +542,8 @@ struct ThemeColorsDe {
     comment_bg: Option<Hsla>,
     /// Required body text color.
     text_default: Hsla,
+    /// Optional list bullet/number color.
+    list_marker: Option<Hsla>,
     /// Optional rendered-link color.
     text_link: Option<Hsla>,
     /// Required empty-block placeholder color.
@@ -727,6 +731,7 @@ impl<'de> Deserialize<'de> for ThemeColors {
                 .comment_bg
                 .unwrap_or_else(|| Hsla::from(rgba(0xfbbf2426))),
             text_default: raw.text_default,
+            list_marker: raw.list_marker.unwrap_or(raw.text_default),
             text_link: raw
                 .text_link
                 .unwrap_or_else(|| Hsla::from(rgba(0x60a5faff))),
@@ -1318,6 +1323,7 @@ impl Theme {
                 source_mode_block_bg: Hsla::from(rgba(0x313131ff)),
                 comment_bg: Hsla::from(rgba(0xfbbf2426)),
                 text_default: Hsla::from(rgba(0xf0efedff)),
+                list_marker: Hsla::from(rgba(0xf0efedff)),
                 text_link: Hsla::from(rgba(0x60a5faff)),
                 text_placeholder: hsla(0., 0., 0.6, 1.0),
                 text_h1: Hsla::from(rgba(0xf0efedff)),
@@ -1565,6 +1571,7 @@ impl Theme {
                 source_mode_block_bg: Hsla::from(rgba(0xeef2f7ff)),
                 comment_bg: Hsla::from(rgba(0xfef3c766)),
                 text_default: Hsla::from(rgba(0x1f2937ff)),
+                list_marker: Hsla::from(rgba(0x1f2937ff)),
                 text_link: Hsla::from(rgba(0x2563ebff)),
                 text_placeholder: Hsla::from(rgba(0x6b7280cc)),
                 text_h1: Hsla::from(rgba(0x111827ff)),
@@ -2481,6 +2488,20 @@ mod tests {
         });
         let (entry, _) = super::custom_theme_from_value(value).expect("theme should import");
         assert_eq!(entry.theme.dimensions.list_root_indent, 24.0);
+    }
+
+    #[test]
+    fn list_marker_defaults_to_text_color_and_reads_from_pack() {
+        let light = Theme::light_theme();
+        assert_eq!(light.colors.list_marker, light.colors.text_default);
+        let value = serde_json::json!({
+            "name": "Orange Markers",
+            "creator": "Ada",
+            "base_theme_id": "velotype-light",
+            "theme": { "colors": { "list_marker": "#965027" } }
+        });
+        let (entry, _) = super::custom_theme_from_value(value).expect("theme should import");
+        assert_eq!(entry.theme.colors.list_marker, rgba(0x965027ff).into());
     }
 
     #[test]
